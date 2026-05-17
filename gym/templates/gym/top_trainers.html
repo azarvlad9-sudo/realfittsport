@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>ТОП Тренери</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: white; padding: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; color: #f1c40f; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .top-card {
+            background: #2c3e50; border-radius: 15px; padding: 20px; margin-bottom: 20px;
+            display: flex; align-items: center; box-shadow: 0 8px 20px rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+        }
+        .photo-frame {
+            width: 80px; height: 80px; border-radius: 50%; background: #34495e;
+            margin-right: 25px; overflow: hidden; display: flex; align-items: center;
+            justify-content: center; border: 3px solid #f1c40f; flex-shrink: 0;
+        }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .info { flex-grow: 1; }
+        .info h2 { margin: 0; color: #fff; font-size: 22px; }
+        .info p { margin: 5px 0 0 0; color: #f1c40f; font-size: 18px; }
+        .back-link { display: block; text-align: center; margin-top: 30px; text-decoration: none; color: #f1c40f; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⭐ НАШІ ТОП-ТРЕНЕРИ ⭐</h1>
+
+    {% for trainer in top_list %}
+    <div class="top-card">
+        <div class="photo-frame">
+            {% if trainer.photo %}
+                <img src="{{ trainer.photo.url }}" alt="фото">
+            {% else %}
+                <span style="font-size: 30px;">💪</span>
+            {% endif %}
+        </div>
+        <div class="info">
+            <h2>{{ trainer.name }}</h2>
+            <p>{{ trainer.get_rating_display }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center; color: #bdc3c7;">Поки немає жодного тренера з рейтингом 5 зірок.</p>
+    {% endfor %}
+
+    <a href="{% url 'home' %}" class="back-link">← Головна сторінка</a>
+</div>
+</body>
+</html>
