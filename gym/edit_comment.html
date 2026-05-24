@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Редагувати відгук</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin:0;}
+        .edit-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h3 { margin-top: 0; color: #2c3e50; }
+        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .cancel-btn { background: #7f8c8d; margin-left: 10px; text-decoration: none; color: white; padding: 10px 15px; border-radius: 6px; font-size: 0.9rem; font-weight: bold; display: inline-block;}
+    </style>
+</head>
+<body>
+<div class="edit-box">
+    <h3>Редагувати твій коментар</h3>
+    <form method="POST">
+        {% csrf_token %}
+        <label>Автор:</label>
+        <input type="text" name="author" value="{{ comment.author }}">
+
+        <label>Тип відгуку:</label>
+        <select name="sentiment">
+            <option value="positive" {% if comment.sentiment == 'positive' %}selected{% endif %}>🟢 Позитивний</option>
+            <option value="neutral" {% if comment.sentiment == 'neutral' %}selected{% endif %}>🟡 Нейтральний</option>
+            <option value="negative" {% if comment.sentiment == 'negative' %}selected{% endif %}>🔴 Негативний</option>
+        </select>
+
+        <label>Текст відгуку:</label>
+        <textarea name="text" rows="4" required>{{ comment.text }}</textarea>
+
+        <button type="submit">Зберегти зміни</button>
+
+        {% if type == 'gym' %}
+            <a href="{% url 'gym_info' %}" class="cancel-btn">Скасувати</a>
+        {% else %}
+            <a href="{% url 'top_trainers' %}" class="cancel-btn">Скасувати</a>
+        {% endif %}
+    </form>
+</div>
+</body>
+</html>

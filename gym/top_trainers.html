@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рейтинг Тренерів - RealFit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #121212; color: white; padding: 40px 20px; margin: 0; }
+        .container { max-width: 650px; margin: 0 auto; }
+        h1 { text-align: center; color: #f1c40f; font-size: 2.2rem; margin-bottom: 5px; font-weight: 800; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 40px; }
+
+        .top-card { background: #1e1e1e; border-radius: 16px; padding: 20px; margin-bottom: 25px; border: 1px solid #2d2d2d; display: flex; flex-direction: column; gap: 15px; }
+        .rank-5 { border: 1.5px solid #f1c40f; box-shadow: 0 4px 20px rgba(241, 196, 15, 0.15); }
+
+        .main-info { display: flex; align-items: center; width: 100%; }
+        .place-number { font-size: 1.3rem; font-weight: 800; width: 40px; text-align: center; margin-right: 15px; color: #888; }
+        .medal-1 { color: #f1c40f; font-size: 1.6rem; }
+        .medal-2 { color: #b2bec3; font-size: 1.5rem; }
+        .medal-3 { color: #cd7f32; font-size: 1.4rem; }
+
+        .photo-frame { width: 75px; height: 75px; border-radius: 50%; background: #2d2d2d; margin-right: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #444; flex-shrink: 0; }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+        .info { flex-grow: 1; }
+        .info h2 { margin: 0; color: #fff; font-size: 1.25rem; font-weight: 700; }
+        .info p { margin: 6px 0 0 0; color: #f1c40f; font-size: 1.1rem; letter-spacing: 2px; }
+        .votes-counter { font-size: 0.8rem; color: #666; margin-top: 4px; }
+
+        .vote-stars { display: inline-flex; gap: 3px; background: #2a2a2a; padding: 3px 8px; border-radius: 20px; border: 1px solid #3a3a3a; margin-top: 5px; }
+        .vote-stars a { color: #555; text-decoration: none; font-size: 0.85rem; }
+        .vote-stars a:hover { color: #f1c40f; }
+
+        .trainer-comments-box { border-top: 1px solid #2d2d2d; padding-top: 15px; margin-top: 5px; }
+        .trainer-comments-box h4 { margin: 0 0 10px 0; color: #aaa; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .sub-comment-item { background: #252525; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; position: relative; }
+        .sent-positive { border-left: 4px solid #27ae60; }
+        .sent-neutral { border-left: 4px solid #f1c40f; }
+        .sent-negative { border-left: 4px solid #e74c3c; }
+
+        .sub-comment-item b { font-size: 0.85rem; color: #fff; display: block; margin-bottom: 2px; }
+        .sub-comment-item span { font-size: 0.85rem; color: #ccc; padding-right: 45px; display: block; }
+
+        .sub-actions { position: absolute; right: 10px; top: 10px; display: flex; gap: 8px; }
+        .sub-actions a { color: #555; text-decoration: none; font-size: 0.75rem; }
+        .sub-actions a:hover { color: #fff; }
+
+        .mini-form { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+        .form-row { display: flex; gap: 6px; }
+        .mini-form input, .mini-form select { background: #2a2a2a; border: 1px solid #3a3a3a; padding: 8px 12px; border-radius: 6px; color: white; font-size: 0.85rem; }
+        .mini-form button { background: #f1c40f; border: none; color: #121212; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+        .mini-form button:hover { background: #f39c12; }
+
+        .back-link { display: block; text-align: center; margin-top: 40px; text-decoration: none; color: #f1c40f; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-trophy"></i> ЗАГАЛЬНИЙ РЕЙТИНГ</h1>
+    <div class="subtitle">Усі тренери за середнім арифметичним оцінок</div>
+
+    {% for trainer in top_list %}
+    <div class="top-card {% if trainer.rating == 5 %}rank-5{% endif %}">
+
+        <div class="main-info">
+            <div class="place-number">
+                {% if forloop.counter == 1 %}<i class="fas fa-medal medal-1"></i>
+                {% elif forloop.counter == 2 %}<i class="fas fa-medal medal-2"></i>
+                {% elif forloop.counter == 3 %}<i class="fas fa-medal medal-3"></i>
+                {% else %}{{ forloop.counter }}{% endif %}
+            </div>
+
+            <div class="photo-frame">
+                {% if trainer.photo %}
+                    <img src="{{ trainer.photo.url }}" alt="фото">
+                {% else %}
+                    <div style="color: #666;"><i class="fas fa-user-ninja"></i></div>
+                {% endif %}
+            </div>
+
+            <div class="info">
+                <h2>{{ trainer.name }}</h2>
+                <p>{{ trainer.get_rating_display }}</p>
+                <div class="votes-counter">Всього голосів: {{ trainer.votes_count }}</div>
+
+                <div class="vote-stars">
+                    <a href="{% url 'vote_trainer' pk=trainer.pk score=1 %}">★</a>
+                    <a href="{% url 'vote_trainer' pk=trainer.pk score=2 %}">★</a>
+                    <a href="{% url 'vote_trainer' pk=trainer.pk score=3 %}">★</a>
+                    <a href="{% url 'vote_trainer' pk=trainer.pk score=4 %}">★</a>
+                    <a href="{% url 'vote_trainer' pk=trainer.pk score=5 %}">★</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="trainer-comments-box">
+            <h4>Відгуки про тренера ({{ trainer.comments.count }})</h4>
+            <div class="sub-comment-list">
+                {% for comment in trainer.comments.all %}
+                <div class="sub-comment-item sent-{{ comment.sentiment }}">
+                    <b>{{ comment.author }} <span style="color:#666; font-weight:normal; font-size:0.75rem;">({{ comment.get_sentiment_display }})</span></b>
+                    <span>{{ comment.text }}</span>
+
+                    <div class="sub-actions">
+                        <a href="{% url 'edit_trainer_comment' pk=comment.pk %}" title="Редагувати"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'delete_trainer_comment' pk=comment.pk %}" onclick="return confirm('Видалити цей відгук?')" title="Видалити"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="font-size: 0.8rem; color: #555; margin: 5px 0;">Про цього тренера ще нічого не написали.</p>
+                {% endfor %}
+            </div>
+
+            <form class="mini-form" method="POST" action="{% url 'add_trainer_comment' pk=trainer.pk %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <input type="text" name="author" placeholder="Ім'я" style="width: 120px;">
+                    <select name="sentiment">
+                        <option value="positive">🟢 Позитивний</option>
+                        <option value="neutral" selected>🟡 Нейтральний</option>
+                        <option value="negative">🔴 Негативний</option>
+                    </select>
+                </div>
+                <div class="form-row" style="margin-top: 4px;">
+                    <input type="text" name="text" placeholder="Напиши відгук про тренера..." required style="flex-grow: 1;">
+                    <button type="submit">Додати</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    {% endfor %}
+
+    <a href="{% url 'home' %}" class="back-link"><i class="fas fa-arrow-left"></i> Назад</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Про наш спортзал - RealFit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #1a1a1a; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: #2c3e50; font-weight: 700; margin-bottom: 20px; }
+
+        .gym-photo-container { width: 100%; height: 350px; border-radius: 12px; overflow: hidden; background: #e0e0e0; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; }
+        .gym-photo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .no-photo { font-size: 4rem; color: #b2bec3; }
+
+        .rating-box { text-align: center; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #e9ecef; margin-bottom: 30px; }
+        .rating-num { font-size: 2.5rem; font-weight: 800; color: #2c3e50; margin: 0; }
+        .stars-interactive { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+        .stars-interactive a { font-size: 1.8rem; color: #ccc; text-decoration: none; transition: transform 0.1s; }
+        .stars-interactive a:hover { color: #f1c40f; transform: scale(1.2); }
+        .votes-count { font-size: 0.85rem; color: #7f8c8d; }
+
+        .comments-section { border-top: 2px solid #f0f2f5; padding-top: 20px; }
+        .comment-form input, .comment-form textarea, .comment-form select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        .comment-form button { background: #9b59b6; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; }
+        .comment-form button:hover { background: #8e44ad; }
+
+        .comment-list { margin-top: 25px; }
+        .comment-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
+
+        /* Колірні рамки залежно від типу відгуку */
+        .comment-positive { border-left: 5px solid #27ae60; background-color: #f4faf6; }
+        .comment-neutral { border-left: 5px solid #f1c40f; background-color: #fdfdf6; }
+        .comment-negative { border-left: 5px solid #e74c3c; background-color: #fdf5f5; }
+
+        .comment-item h4 { margin: 0 0 5px 0; color: #2c3e50; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .comment-item p { margin: 0; color: #555; font-size: 0.9rem; line-height: 1.4; padding-right: 60px; }
+        .comment-date { font-size: 0.75rem; color: #b2bec3; display: block; margin-top: 5px; }
+
+        /* Кнопки Дій для комєнтів */
+        .comment-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 10px; }
+        .comment-actions a { color: #b2bec3; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .comment-actions a.edit-btn:hover { color: #3498db; }
+        .comment-actions a.delete-btn:hover { color: #e74c3c; }
+
+        .back-btn { display: block; text-align: center; margin-bottom: 20px; text-decoration: none; color: #7f8c8d; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="{% url 'home' %}" class="back-btn"><i class="fas fa-arrow-left"></i> На головну сторінку</a>
+    <h1>Наш Фітнес Зал <i class="fas fa-building"></i></h1>
+
+    <div class="gym-photo-container">
+        {% if gym_page.photo %}
+            <img src="{{ gym_page.photo.url }}" alt="Фото залу">
+        {% else %}
+            <div class="no-photo"><i class="fas fa-image"></i><p style="font-size: 1rem; margin: 5px;">Завантажте фото через адмін-панель</p></div>
+        {% endif %}
+    </div>
+
+    <div class="rating-box">
+        <p style="margin:0; font-weight:600; color:#7f8c8d;">Поточна оцінка залу</p>
+        <div class="rating-num">{{ gym_page.rating }} / 5.0</div>
+
+        <div class="stars-interactive">
+            <a href="{% url 'vote_gym' score=1 %}" title="Жахливо">★</a>
+            <a href="{% url 'vote_gym' score=2 %}" title="Погано">★</a>
+            <a href="{% url 'vote_gym' score=3 %}" title="Нормально">★</a>
+            <a href="{% url 'vote_gym' score=4 %}" title="Добре">★</a>
+            <a href="{% url 'vote_gym' score=5 %}" title="Супер">★</a>
+        </div>
+        <div class="votes-count">Всього голосів: {{ gym_page.votes_count }}</div>
+    </div>
+
+    <div class="comments-section">
+        <h3><i class="fas fa-comments"></i> Враження та пропозиції клієнтів</h3>
+        <form class="comment-form" method="POST">
+            {% csrf_token %} <input type="text" name="author" placeholder="Ваше ім'я (або залишіть порожнім)" autocomplete="off">
+
+            <select name="sentiment" required>
+                <option value="positive">🟢 Позитивний відгук</option>
+                <option value="neutral" selected>🟡 Нейтральний / Пропозиція</option>
+                <option value="negative">🔴 Негативний відгук</option>
+            </select>
+
+            <textarea name="text" rows="3" placeholder="Що нам додати або змінити в залі? Твої враження..." required></textarea>
+            <button type="submit">Надіслати відгук</button>
+        </form>
+
+        <div class="comment-list">
+            {% for comment in comments %}
+            <div class="comment-item comment-{{ comment.sentiment }}">
+                <h4>
+                    {{ comment.author }}
+                    <span style="font-size:0.75rem; font-weight:normal;">
+                        ({{ comment.get_sentiment_display }})
+                    </span>
+                </h4>
+                <p>{{ comment.text }}</p>
+                <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+
+                <div class="comment-actions">
+                    <a href="{% url 'edit_gym_comment' pk=comment.pk %}" class="edit-btn" title="Редагувати"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'delete_gym_comment' pk=comment.pk %}" class="delete-btn" onclick="return confirm('Ви впевнені, що хочете видалити цей відгук?')" title="Видалити"><i class="fas fa-trash"></i></a>
+                </div>
+            </div>
+            {% empty %}
+            <p style="text-align: center; color: #b2bec3;">Тут ще немає відгуків. Будь першим!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
